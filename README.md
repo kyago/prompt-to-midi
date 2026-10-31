@@ -16,9 +16,13 @@ AI가 곡을 Python 데이터(코드 진행·멜로디·구성·악기)로 작�
 | `SKILL.md` | AI 작업 절차: 실행 → 저장 (스킬 사용 시마다 로드) |
 | `SPEC.md` | 명령·폴더·곡 파일 형식 명세 |
 | `scripts/studio.py` | CLI (표준 라이브러리만 사용) |
+| `scripts/analyze.py` | 렌더된 MIDI 자동 점검(`studio.py analyze`) |
 | `templates/song.py` | 새 곡 템플릿 |
 | `songs/autumn-cafe/` | 예제: 가을/겨울 카페 재즈, 바리에이션 4종 |
 
 ## 라이선스 참고
 
-사운드폰트 [GeneralUser GS](https://github.com/mrbumpy409/GeneralUser-GS)는 저장소에 포함하지 않고 `init`이 내려받는다. 사용 조건은 해당 저장소의 라이선스를 따른다.
+사운드폰트는 저장소에 포함하지 않고 `init`이 내려받는다. 사용 조건은 각 라이선스를 따른다.
+
+- [GeneralUser GS](https://github.com/mrbumpy409/GeneralUser-GS): 피아노 외 전 악기
+- [Salamander Grand Piano](https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html) (Alexander Holm, SF2 변환 FreePats): 피아노. **CC-BY 3.0이라 결과물을 배포할 때 출처 표기가 필요하다** (예: 영상 설명란에 "Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0)")

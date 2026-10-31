@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""prompt-to-midi CLI — init / doctor / new / render. 표준 라이브러리만 쓴다(시스템 python3로 실행).
+"""prompt-to-midi CLI — init / doctor / new / render / analyze. 표준 라이브러리만 쓴다(시스템 python3로 실행).
 
     python3 scripts/studio.py init                  # 환경 구축(멱등)
     python3 scripts/studio.py doctor                # 환경 진단, 실패 시 종료코드 1
     python3 scripts/studio.py new <slug> [--from <기존곡>]
     python3 scripts/studio.py render <slug> [바리에이션...]
+    python3 scripts/studio.py analyze <slug> [바리에이션...]   # 렌더된 MIDI 자동 점검
 """
 import argparse
 import platform
@@ -13,6 +14,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import tarfile
 import tempfile
 import urllib.request
 import wave
@@ -23,6 +25,9 @@ VENV = ROOT / ".venv"
 PY = VENV / "bin" / "python"
 SF2 = ROOT / "soundfonts" / "GeneralUser-GS.sf2"
 SF2_URL = "https://github.com/mrbumpy409/GeneralUser-GS/raw/main/GeneralUser-GS.sf2"
+# 피아노 전용 고음질 사운드폰트(Salamander Grand, CC-BY 3.0). 없으면 곡은 GM 피아노로 렌더된다
+PIANO = ROOT / "soundfonts" / "SalamanderGrandPiano.sf2"
+PIANO_URL = "https://freepats.zenvoid.org/Piano/SalamanderGrandPiano/SalamanderGrandPiano-SF2-V3+20200602.tar.xz"
 TEMPLATE = ROOT / "templates" / "song.py"
 SONGS = ROOT / "songs"
 PIP_DEPS = ["mido>=1.3"]
@@ -80,6 +85,21 @@ def init(_):
             print("❌ 받은 파일이 SoundFont가 아님. URL을 확인할 것")
             return 1
         tmp.rename(SF2)
+    if not valid_sf2(PIANO):
+        print("· 피아노 사운드폰트 다운로드(약 300MB, 풀면 1.3GB):", PIANO_URL)
+        archive, tmp = PIANO.with_name("piano.tar.xz.part"), PIANO.with_suffix(".part")
+        urllib.request.urlretrieve(PIANO_URL, archive)
+        with tarfile.open(archive) as tf:
+            member = next((m for m in tf.getmembers() if m.name.endswith(".sf2")), None)
+            if member:  # 경로를 쓰지 않고 내용만 꺼낸다(압축 경로 조작 방지)
+                with tf.extractfile(member) as src, open(tmp, "wb") as dst:
+                    shutil.copyfileobj(src, dst)
+        archive.unlink()
+        if not valid_sf2(tmp):
+            tmp.unlink(missing_ok=True)
+            print("❌ 피아노 사운드폰트를 찾지 못함. URL을 확인할 것")
+            return 1
+        tmp.rename(PIANO)
     missing = [b for b in SYSTEM_BINS if not shutil.which(b)]
     if missing:
         print(f"❌ 시스템 도구 없음: {', '.join(missing)}\n   설치(사용자 승인 후): {install_hint()}")
@@ -123,6 +143,9 @@ def doctor(_):
             checks.append(("테스트 렌더링(소리 출력)", test_render(), "fluidsynth 오류 — 직접 실행해 메시지 확인"))
     for name, ok, hint in checks:
         print(f"{'✅' if ok else '❌'} {name}" + ("" if ok else f" — 조치: {hint}"))
+    # 선택 항목: 없어도 렌더는 되므로 실패로 치지 않는다
+    print("✅ 피아노 사운드폰트(Salamander)" if valid_sf2(PIANO) else
+          "⚠ 피아노 사운드폰트(Salamander) 없음 — GM 피아노로 렌더됨. 받으려면: python3 scripts/studio.py init")
     ok = all(c[1] for c in checks)
     print("정상" if ok else "문제 있음: 위 조치 후 doctor 재실행")
     return 0 if ok else 1
@@ -157,6 +180,16 @@ def render(a):
     return subprocess.run([str(PY), str(song), *a.variants]).returncode
 
 
+def analyze(a):
+    out = SONGS / a.slug / "out"
+    mids = [out / f"{v}.mid" for v in a.variants] or sorted(out.glob("*.mid"))
+    missing = [m for m in mids if not m.exists()]
+    if not mids or missing:
+        print(f"❌ 렌더 결과 없음: {', '.join(m.name for m in missing) or out.relative_to(ROOT)} — 먼저 render")
+        return 1
+    return subprocess.run([str(PY), str(ROOT / "scripts" / "analyze.py"), *map(str, mids)]).returncode
+
+
 def main():
     p = argparse.ArgumentParser(description="prompt-to-midi")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -170,6 +203,10 @@ def main():
     r.add_argument("slug", type=slug_type)
     r.add_argument("variants", nargs="*", help="생략 시 전체 바리에이션")
     r.set_defaults(fn=render)
+    z = sub.add_parser("analyze", help="렌더된 MIDI 자동 점검(음역 겹침·반복·세기)")
+    z.add_argument("slug", type=slug_type)
+    z.add_argument("variants", nargs="*", help="생략 시 out/의 전체 MIDI")
+    z.set_defaults(fn=analyze)
     a = p.parse_args()
     sys.exit(a.fn(a))
 

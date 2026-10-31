@@ -7,7 +7,9 @@
 ```bash
 python3 scripts/studio.py init
 ```
-- `.venv` 생성, `mido` 설치, 사운드폰트(GeneralUser GS, 약 32MB) 다운로드·검증을 한다. 여러 번 실행해도 안전하다.
+- `.venv` 생성, `mido` 설치, 사운드폰트 다운로드·검증을 한다. 여러 번 실행해도 안전하다.
+  - GeneralUser GS(약 32MB)
+  - 피아노용 Salamander Grand(받기 약 300MB, 풀면 1.3GB). 디스크가 부족하면 이 단계가 실패해도 곡은 GM 피아노로 렌더된다
 - 시스템 도구(fluidsynth, ffmpeg)가 없으면 설치 명령만 출력하고 종료코드 1로 끝난다.
   - macOS: `brew install fluid-synth ffmpeg`
   - Debian/Ubuntu: `sudo apt install fluidsynth ffmpeg`
