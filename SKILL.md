@@ -47,7 +47,7 @@ description: 자연어로 음악(MIDI)을 작곡·편곡·수정하고 mid/mp3/�
 
 ## 작곡 지침 (실사용에서 얻은 교훈)
 
-- **음색**: 피아노는 Salamander Grand(init이 받음, 출처 표기 필요: README)로, 나머지는 GeneralUser GS로 렌더된다. 요약 줄에 `GM 피아노`가 보이면 Salamander가 없는 것이다. GeneralUser의 Tine EP(4, Rhodes)와 비브라폰(11)은 어택이 금속성이라 "깨지는 소리"로 들린다는 피드백이 있었다. 부드러운 쪽은 Piano(0), Nylon Guitar(24), Acoustic Bass(32), Slow Strings(49), Brush kit(128-40)이다. 처음 쓰는 악기는 짧게 렌더링해 피크부터 확인한다.
+- **음색**: 피아노는 Upright Piano KW(init이 받음, CC0라 출처 표기 불필요)로, 나머지는 GeneralUser GS로 렌더된다. Salamander 그랜드와 비교해 업라이트가 낫다는 피드백이 있었다. 요약 줄에 `GM 피아노`가 보이면 업라이트 사운드폰트가 없는 것이다. GeneralUser의 Tine EP(4, Rhodes)와 비브라폰(11)은 어택이 금속성이라 "깨지는 소리"로 들린다는 피드백이 있었다. 부드러운 쪽은 Piano(0), Nylon Guitar(24), Acoustic Bass(32), Slow Strings(49), Brush kit(128-40)이다. 처음 쓰는 악기는 짧게 렌더링해 피크부터 확인한다.
 - **세기**: 반주 velocity는 40~56이 기준. 멜로디 세기는 엔진이 음높이·박 위치로, 섹션 세기는 에너지로 자동 조절한다. 세기가 높으면 같은 악기도 날카로워진다.
 - **음량**: 렌더가 `LOUDNESS`(LUFS)로 맞추고 리미터로 피크를 -1.5dB에 막는다. `loudnorm`은 쓰지 않는다(1패스 모드가 조용한 구간을 끌어올려 잡음을 만들었음). 리미터가 6dB 넘게 깎으면 `LOUDNESS`를 낮춘다.
 - **화성**: 재즈풍은 maj9·m9·13·sus 보이싱, ii–V 진행, 가끔 Bbm6 같은 차용 화음이 따뜻하게 들린다.

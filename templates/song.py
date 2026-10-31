@@ -15,7 +15,7 @@ import mido
 
 HERE = Path(__file__).resolve().parent
 SOUNDFONT = HERE.parents[1] / "soundfonts" / "GeneralUser-GS.sf2"
-PIANO_SF = HERE.parents[1] / "soundfonts" / "SalamanderGrandPiano.sf2"  # 있으면 피아노(0)만 이 음색으로
+PIANO_SF = HERE.parents[1] / "soundfonts" / "UprightPianoKW.sf2"  # 있으면 피아노(0)만 이 음색으로
 OUT = HERE / "out"
 
 # ───────────── 곡 데이터 ─────────────
@@ -75,7 +75,7 @@ FORM = [
 # 악기 팔레트: GM 프로그램 번호, 볼륨
 # 주의: 이 사운드폰트의 4 Tine EP(Rhodes)·11 비브라폰은 어택이 금속성이라 '깨지는 소리'로 들린다는 피드백이 있었음
 PALETTE = {
-    "piano":   dict(program=0,  vol=127),   # Salamander 피아노는 GM보다 약 5dB 작아서 최대로
+    "piano":   dict(program=0,  vol=75),    # 업라이트 피아노(Upright KW)
     "guitar":  dict(program=24, vol=110),   # 나일론 기타
     "bass":    dict(program=32, vol=108),   # 어쿠스틱 베이스
     "strings": dict(program=49, vol=60),    # 느린 현악 패드
@@ -320,7 +320,7 @@ def render(name):
     mid_path, wav, mp3, mp4 = (OUT / f"{name}.{e}" for e in ("mid", "wav", "mp3", "mp4"))
     mid = build(VARIANTS[name])
     mid.save(mid_path)
-    # 뒤에 읽은 사운드폰트가 우선한다 → Salamander가 있으면 피아노(0)만 그걸로, 나머지는 GeneralUser
+    # 뒤에 읽은 사운드폰트가 우선한다 → 업라이트가 있으면 피아노(0)만 그걸로, 나머지는 GeneralUser
     fonts = [SOUNDFONT] + [PIANO_SF] * PIANO_SF.exists()
     subprocess.run(["fluidsynth", "-ni", "-O", "float", "-r", "44100", "-F", str(wav), *fonts, str(mid_path)],
                    check=True, capture_output=True)

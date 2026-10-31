@@ -10,7 +10,7 @@ AI가 자연어 요청으로 곡을 만들고 고치는 작업 환경의 규약.
 | Python | 3.10+ (`studio.py`는 표준 라이브러리만 사용) |
 | 시스템 도구 | `fluidsynth`(MIDI→WAV), `ffmpeg`/`ffprobe`(mp3·mp4, libx264 포함) |
 | 파이썬 패키지 | `mido>=1.3` (`.venv`에 설치) |
-| 사운드폰트 | GeneralUser GS (`soundfonts/GeneralUser-GS.sf2`, 약 32MB) + 피아노 전용 Salamander Grand (`soundfonts/SalamanderGrandPiano.sf2`, 받기 약 300MB·풀면 1.3GB, CC-BY 3.0). 둘 다 init이 다운로드. Salamander가 없으면 GM 피아노로 렌더 |
+| 사운드폰트 | GeneralUser GS (`soundfonts/GeneralUser-GS.sf2`, 약 32MB) + 피아노 전용 Upright Piano KW (`soundfonts/UprightPianoKW.sf2`, 받기 약 28MB, CC0, 7z라 `bsdtar` 필요). 둘 다 init이 다운로드. 업라이트가 없으면 GM 피아노로 렌더 |
 
 ## 2. 폴더 구조
 
@@ -51,10 +51,10 @@ prompt-to-midi/                 ← 저장소 루트 = 스킬 루트
 2. `.venv` 존재 + `import mido` 성공
 3. `fluidsynth`, `ffmpeg`, `ffprobe`가 PATH에 있음
 4. ffmpeg에 `libx264` 인코더 있음(mp4용)
-5. 사운드폰트 헤더가 `RIFF....sfbk` (GeneralUser, Salamander 각각)
+5. 사운드폰트 헤더가 `RIFF....sfbk` (GeneralUser, Upright KW 각각)
 6. 필수 프리셋 존재: Piano(0), Nylon Guitar(24), Acoustic Bass(32), Slow Strings(49), Jazz kit(128-32), Brush kit(128-40)
 7. 테스트 렌더링: 1음 MIDI → fluidsynth → WAV가 무음이 아님
-8. (선택, 실패로 치지 않음) Salamander 피아노 사운드폰트 존재. 없으면 ⚠와 함께 GM 피아노로 렌더됨을 알림
+8. (선택, 실패로 치지 않음) Upright KW 피아노 사운드폰트 존재. 없으면 ⚠와 함께 GM 피아노로 렌더됨을 알림
 
 ## 4. 곡 파일 계약 — `songs/<slug>/song.py`
 
@@ -89,7 +89,7 @@ prompt-to-midi/                 ← 저장소 루트 = 스킬 루트
 | 단계 | 도구·설정 | 이유 |
 |---|---|---|
 | MIDI 생성 | mido, 480 TPB, 마지막에 6박 여유 | 잔향이 잘리지 않게 |
-| 합성 | `fluidsynth -ni -O float -r 44100 GeneralUser.sf2 [Salamander.sf2]` | 뒤에 읽은 사운드폰트가 우선 → 피아노(0)만 Salamander. float라 합성 단계 클리핑 없음 |
+| 합성 | `fluidsynth -ni -O float -r 44100 GeneralUser.sf2 [UprightPianoKW.sf2]` | 뒤에 읽은 사운드폰트가 우선 → 피아노(0)만 업라이트. float라 합성 단계 클리핑 없음 |
 | 음량 | ebur128로 잰 뒤 `LOUDNESS - 측정값`만큼 고정 게인 → `alimiter`(limit 0.84≈-1.5dB, `level=false`, 4배 오버샘플) | 1패스 `loudnorm`은 조용한 구간·잔향을 따로 끌어올려 잡음을 만들어서 쓰지 않음 |
 | 꼬리 | 30Hz 하이패스, MIDI 길이에서 자르고 마지막 1초 페이드아웃 | 탐 샘플의 들리지 않는 꼬리가 수십 초 이어짐 |
 | mp3 | ffmpeg 256kbps | — |

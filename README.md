@@ -25,4 +25,4 @@ AI가 곡을 Python 데이터(코드 진행·멜로디·구성·악기)로 작�
 사운드폰트는 저장소에 포함하지 않고 `init`이 내려받는다. 사용 조건은 각 라이선스를 따른다.
 
 - [GeneralUser GS](https://github.com/mrbumpy409/GeneralUser-GS): 피아노 외 전 악기
-- [Salamander Grand Piano](https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html) (Alexander Holm, SF2 변환 FreePats): 피아노. **CC-BY 3.0이라 결과물을 배포할 때 출처 표기가 필요하다** (예: 영상 설명란에 "Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0)")
+- [Upright Piano KW](https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html#UprightKW) (FreePats): 피아노. CC0(퍼블릭 도메인)이라 출처 표기 없이 쓸 수 있다

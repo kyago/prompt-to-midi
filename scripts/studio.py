@@ -25,9 +25,10 @@ VENV = ROOT / ".venv"
 PY = VENV / "bin" / "python"
 SF2 = ROOT / "soundfonts" / "GeneralUser-GS.sf2"
 SF2_URL = "https://github.com/mrbumpy409/GeneralUser-GS/raw/main/GeneralUser-GS.sf2"
-# 피아노 전용 고음질 사운드폰트(Salamander Grand, CC-BY 3.0). 없으면 곡은 GM 피아노로 렌더된다
-PIANO = ROOT / "soundfonts" / "SalamanderGrandPiano.sf2"
-PIANO_URL = "https://freepats.zenvoid.org/Piano/SalamanderGrandPiano/SalamanderGrandPiano-SF2-V3+20200602.tar.xz"
+# 피아노 전용 사운드폰트(Upright Piano KW, CC0). 없으면 곡은 GM 피아노로 렌더된다
+PIANO = ROOT / "soundfonts" / "UprightPianoKW.sf2"
+PIANO_URL = "https://freepats.zenvoid.org/Piano/UprightPianoKW/UprightPianoKW-SF2-20220221.7z"
+PIANO_MEMBER = "UprightPianoKW-SF2-20220221/UprightPianoKW-20220221.sf2"
 TEMPLATE = ROOT / "templates" / "song.py"
 SONGS = ROOT / "songs"
 PIP_DEPS = ["mido>=1.3"]
@@ -86,18 +87,16 @@ def init(_):
             return 1
         tmp.rename(SF2)
     if not valid_sf2(PIANO):
-        print("· 피아노 사운드폰트 다운로드(약 300MB, 풀면 1.3GB):", PIANO_URL)
-        archive, tmp = PIANO.with_name("piano.tar.xz.part"), PIANO.with_suffix(".part")
+        print("· 피아노 사운드폰트 다운로드(약 28MB):", PIANO_URL)
+        archive, tmp = PIANO.with_name("piano.7z.part"), PIANO.with_suffix(".part")
         urllib.request.urlretrieve(PIANO_URL, archive)
-        with tarfile.open(archive) as tf:
-            member = next((m for m in tf.getmembers() if m.name.endswith(".sf2")), None)
-            if member:  # 경로를 쓰지 않고 내용만 꺼낸다(압축 경로 조작 방지)
-                with tf.extractfile(member) as src, open(tmp, "wb") as dst:
-                    shutil.copyfileobj(src, dst)
+        # 7z는 표준 라이브러리로 못 풀어서 bsdtar(macOS 기본 tar)를 쓴다. 파일 하나만 표준출력으로 꺼낸다
+        with open(tmp, "wb") as dst:
+            subprocess.run([shutil.which("bsdtar") or "tar", "-xOf", str(archive), PIANO_MEMBER], stdout=dst)
         archive.unlink()
         if not valid_sf2(tmp):
             tmp.unlink(missing_ok=True)
-            print("❌ 피아노 사운드폰트를 찾지 못함. URL을 확인할 것")
+            print("❌ 피아노 사운드폰트 압축 해제 실패. 리눅스는 bsdtar 필요: sudo apt install libarchive-tools")
             return 1
         tmp.rename(PIANO)
     missing = [b for b in SYSTEM_BINS if not shutil.which(b)]
@@ -144,8 +143,8 @@ def doctor(_):
     for name, ok, hint in checks:
         print(f"{'✅' if ok else '❌'} {name}" + ("" if ok else f" — 조치: {hint}"))
     # 선택 항목: 없어도 렌더는 되므로 실패로 치지 않는다
-    print("✅ 피아노 사운드폰트(Salamander)" if valid_sf2(PIANO) else
-          "⚠ 피아노 사운드폰트(Salamander) 없음 — GM 피아노로 렌더됨. 받으려면: python3 scripts/studio.py init")
+    print("✅ 피아노 사운드폰트(Upright KW)" if valid_sf2(PIANO) else
+          "⚠ 피아노 사운드폰트(Upright KW) 없음 — GM 피아노로 렌더됨. 받으려면: python3 scripts/studio.py init")
     ok = all(c[1] for c in checks)
     print("정상" if ok else "문제 있음: 위 조치 후 doctor 재실행")
     return 0 if ok else 1
